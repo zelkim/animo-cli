@@ -1,26 +1,25 @@
 import type { Request, Response, NextFunction } from 'express';
 
-export function authMiddleware(expectedToken: string) {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    if (req.path === '/health' || req.path === '/openapi.json') {
-      next();
-      return;
-    }
+const ALLOWED_IPS = ['194.127.193.119'];
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      res.status(401).json({ error: 'Missing authorization header', status: 401 });
-      return;
-    }
-
-    const token = authHeader.replace(/^Bearer\s+/i, '');
-    if (token !== expectedToken) {
-      res.status(401).json({ error: 'Invalid token', status: 401 });
-      return;
-    }
-
+export function ipAllowlist(req: Request, res: Response, next: NextFunction): void {
+  if (req.path === '/health' || req.path === '/openapi.json') {
     next();
-  };
+    return;
+  }
+
+  const forwarded = req.headers['x-forwarded-for'];
+  const raw = typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : req.socket.remoteAddress;
+  // Normalize IPv6-mapped IPv4 (e.g. ::ffff:1.2.3.4 → 1.2.3.4)
+  const ip = raw?.replace(/^::ffff:/, '') ?? '';
+
+  if (!ALLOWED_IPS.includes(ip)) {
+    console.warn(`Blocked request from ${ip} to ${req.method} ${req.path}`);
+    res.status(403).json({ error: 'Forbidden', status: 403 });
+    return;
+  }
+
+  next();
 }
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction): void {

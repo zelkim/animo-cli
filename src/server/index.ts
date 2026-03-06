@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import { resolveConfig } from '../config.js';
 import { createClient } from '../client.js';
-import { authMiddleware, errorHandler } from './middleware.js';
+import { ipAllowlist, errorHandler } from './middleware.js';
 import { openApiSpec } from './openapi.js';
 import { coursesRouter } from './routes/courses.js';
 import { assignmentsRouter } from './routes/assignments.js';
@@ -20,7 +20,8 @@ const client = createClient(config);
 
 const app = express();
 app.use(express.json());
-app.use(authMiddleware(config.token));
+app.set('trust proxy', true);
+app.use(ipAllowlist);
 
 app.locals['client'] = client;
 
