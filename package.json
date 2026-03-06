@@ -1,0 +1,35 @@
+{
+  "name": "animo-cli",
+  "version": "0.1.0",
+  "description": "CLI for Canvas LMS student API",
+  "type": "module",
+  "bin": {
+    "animo": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "tsc --noEmit",
+    "start": "node dist/server/index.js"
+  },
+  "keywords": [
+    "canvas",
+    "lms",
+    "cli",
+    "student"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "canvas-student-api": "file:../canvas-user-openapi",
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
